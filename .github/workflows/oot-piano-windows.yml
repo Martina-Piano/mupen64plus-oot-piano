@@ -25,7 +25,7 @@ jobs:
         run: make -j2 platform=win MSYSTEM=MINGW64 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++
       - name: Show native DLL dependencies
         shell: msys2 {0}
-        run: x86_64-w64-mingw32-objdump -p oot_piano_libretro.dll | grep 'DLL Name:'
+        run: objdump -p oot_piano_libretro.dll | grep 'DLL Name:'
       - name: Verify the core loads outside the build toolchain
         shell: pwsh
         run: |
