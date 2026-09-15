@@ -11,14 +11,17 @@
 /*
  * Dynamic prototype v0.31
  *
- * Same mapping and loop points as v0.3, but adds a 20 ms linear crossfade
- * at every musical loop seam. During the last 20 ms of the WAV, the tail
- * fades out while the first 20 ms starting at the user's loop point fades in.
- * After the seam, playback continues after that already-heard 20 ms region.
- * This removes clicks without creating an audible long transition.
+ * Adds a 20 ms linear crossfade at every musical loop seam. During the last
+ * 20 ms of the WAV, the tail fades out while the first 20 ms starting at the
+ * user's loop point fades in. After the seam, playback continues after that
+ * already-heard 20 ms region.
+ *
+ * Kokiri Forest was re-exported with a tiny clean lead-in. Its confirmed
+ * FL Studio loop point is now 31:08:07 at 130 BPM / 96 PPQ.
  */
 
 static const double LOOP_CROSSFADE_SEC = 0.020;
+static const double KOKIRI_LOOP_START_SEC_V031 = 56.22596153846154;
 
 static void sample_at_position_v031(const struct wav_track *track, double position,
       float *left, float *right)
@@ -119,7 +122,7 @@ static void mix_external_v031(float *left, float *right)
 {
    float kl, kr, hl, hr, bl, br;
 
-   track_next_sample_v031(&g_kokiri, KOKIRI_LOOP_START_SEC, &kl, &kr);
+   track_next_sample_v031(&g_kokiri, KOKIRI_LOOP_START_SEC_V031, &kl, &kr);
    track_next_sample_v031(&g_house,  HOUSE_LOOP_START_SEC,  &hl, &hr);
    track_next_sample_v031(&g_battle, BATTLE_LOOP_START_SEC, &bl, &br);
 
