@@ -1,14 +1,8 @@
-#define retro_set_audio_sample_v01 retro_set_audio_sample_v03_raw
-#define retro_set_audio_sample_batch_v01 retro_set_audio_sample_batch_v03_raw
-#define retro_get_system_info_v01 retro_get_system_info_v03_raw
 #define track_next_sample_v03 track_next_sample_v03_raw
 #define mix_external_v03 mix_external_v03_raw
 #define audio_sample_proxy_v03 audio_sample_proxy_v03_raw
 #define audio_batch_proxy_v03 audio_batch_proxy_v03_raw
 #include "oot_piano_dynamic_wrapper_v03.c"
-#undef retro_set_audio_sample_v01
-#undef retro_set_audio_sample_batch_v01
-#undef retro_get_system_info_v01
 #undef track_next_sample_v03
 #undef mix_external_v03
 #undef audio_sample_proxy_v03
