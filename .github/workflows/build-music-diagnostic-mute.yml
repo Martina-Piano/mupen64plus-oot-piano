@@ -1,0 +1,64 @@
+name: Build OoT music diagnostic mute wrapper
+
+on:
+  push:
+    branches: [wav-wrapper]
+    paths:
+      - 'custom/music_diag/**'
+      - '.github/workflows/build-music-diagnostic-mute.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install MinGW-w64
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64
+
+      - name: Build muted diagnostic wrapper DLL
+        run: |
+          x86_64-w64-mingw32-gcc \
+            -std=c11 -O2 -Wall -Wextra \
+            -shared -static-libgcc \
+            -Ilibretro-common/include \
+            custom/music_diag/oot_music_diag_mute_wrapper.c \
+            -o mupen64plus_oot_music_diag_mute_libretro.dll
+
+          cp custom/music_diag/mupen64plus_oot_music_diag_mute_libretro.info .
+
+          echo 'Architecture:'
+          file mupen64plus_oot_music_diag_mute_libretro.dll
+
+          echo 'Dependencies:'
+          x86_64-w64-mingw32-objdump -p mupen64plus_oot_music_diag_mute_libretro.dll \
+            | sed -n '/DLL Name:/p' | tee dependencies.txt
+
+          echo 'Required libretro exports:'
+          for sym in \
+            retro_api_version retro_init retro_deinit retro_get_system_info \
+            retro_get_system_av_info retro_set_environment retro_set_video_refresh \
+            retro_set_audio_sample retro_set_audio_sample_batch retro_set_input_poll \
+            retro_set_input_state retro_set_controller_port_device retro_reset retro_run \
+            retro_serialize_size retro_serialize retro_unserialize retro_cheat_reset \
+            retro_cheat_set retro_load_game retro_load_game_special retro_unload_game \
+            retro_get_region retro_get_memory_data retro_get_memory_size; do
+              x86_64-w64-mingw32-nm -g mupen64plus_oot_music_diag_mute_libretro.dll | grep -q " $sym$" \
+                || { echo "Missing export: $sym"; exit 1; }
+          done
+
+          sha256sum mupen64plus_oot_music_diag_mute_libretro.dll > SHA256.txt
+
+      - name: Upload muted diagnostic package
+        uses: actions/upload-artifact@v4
+        with:
+          name: oot-music-diagnostic-mute-win64
+          path: |
+            mupen64plus_oot_music_diag_mute_libretro.dll
+            mupen64plus_oot_music_diag_mute_libretro.info
+            dependencies.txt
+            SHA256.txt
