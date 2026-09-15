@@ -1,0 +1,33 @@
+# Software Information
+display_name = "Nintendo - Nintendo 64 (Mupen64Plus-Next OoT Piano WAV)"
+authors = "Mupen64Plus Team|libretro|OoT Piano wrapper"
+supported_extensions = "n64|v64|z64|ndd|bin|u1"
+corename = "Mupen64Plus-Next OoT Piano"
+license = "GPLv2"
+permissions = "dynarec_optional"
+display_version = "WAV Wrapper 0.1"
+categories = "Emulator"
+
+# Hardware Information
+manufacturer = "Nintendo"
+systemname = "Nintendo 64"
+systemid = "nintendo_64"
+
+# Libretro Features
+supports_no_game = "false"
+database = "Nintendo - Nintendo 64"
+hw_render = "true"
+required_hw_api = "OpenGL Core >= 3.3 | OpenGL ES >= 2.0"
+savestate = "true"
+savestate_features = "serialized"
+cheats = "true"
+input_descriptors = "true"
+memory_descriptors = "true"
+libretro_saves = "true"
+core_options = "true"
+load_subsystem = "true"
+needs_fullpath = "false"
+disk_control = "false"
+is_experimental = "true"
+
+description = "Prototype wrapper around the official Mupen64Plus-Next core. It mixes an external WAV file with the core audio for the OoT Piano project."
