@@ -1,24 +1,24 @@
+#define retro_set_audio_sample_v01 retro_set_audio_sample_v03_raw
+#define retro_set_audio_sample_batch_v01 retro_set_audio_sample_batch_v03_raw
+#define retro_get_system_info_v01 retro_get_system_info_v03_raw
 #define track_next_sample_v03 track_next_sample_v03_raw
 #define mix_external_v03 mix_external_v03_raw
 #define audio_sample_proxy_v03 audio_sample_proxy_v03_raw
 #define audio_batch_proxy_v03 audio_batch_proxy_v03_raw
-#define retro_set_audio_sample retro_set_audio_sample_v03_raw
-#define retro_set_audio_sample_batch retro_set_audio_sample_batch_v03_raw
-#define retro_get_system_info retro_get_system_info_v03_raw
 #include "oot_piano_dynamic_wrapper_v03.c"
+#undef retro_set_audio_sample_v01
+#undef retro_set_audio_sample_batch_v01
+#undef retro_get_system_info_v01
 #undef track_next_sample_v03
 #undef mix_external_v03
 #undef audio_sample_proxy_v03
 #undef audio_batch_proxy_v03
-#undef retro_set_audio_sample
-#undef retro_set_audio_sample_batch
-#undef retro_get_system_info
 
 /*
  * Dynamic prototype v0.31
  *
  * Same mapping and loop points as v0.3, but adds a 20 ms linear crossfade
- * at every musical loop seam.  During the last 20 ms of the WAV, the tail
+ * at every musical loop seam. During the last 20 ms of the WAV, the tail
  * fades out while the first 20 ms starting at the user's loop point fades in.
  * After the seam, playback continues after that already-heard 20 ms region.
  * This removes clicks without creating an audible long transition.
@@ -78,7 +78,6 @@ static void track_next_sample_v031(struct wav_track *track, double loop_start_se
    loop_start = track_loop_start_frame(track, loop_start_sec);
    fade_frames = LOOP_CROSSFADE_SEC * (double)track->sample_rate;
 
-   /* Keep the fade safely inside both the tail and the loop body. */
    if (fade_frames < 1.0)
       fade_frames = 1.0;
    if (fade_frames > ((double)track->frames - loop_start) * 0.25)
@@ -89,13 +88,10 @@ static void track_next_sample_v031(struct wav_track *track, double loop_start_se
    fade_start = (double)track->frames - fade_frames;
    loop_after_fade = loop_start + fade_frames;
 
-   /* The first fade_frames of the loop were already heard during the seam,
-    * so continue after them when crossing the physical end of the file. */
    while (track->position >= (double)track->frames)
       track->position = loop_after_fade +
                         (track->position - (double)track->frames);
 
-   /* Safety for unusually short files/loop regions. */
    while (track->position >= (double)track->frames)
       track->position = loop_start +
                         (track->position - (double)track->frames);
