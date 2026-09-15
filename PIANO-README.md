@@ -28,3 +28,7 @@ RetroArch before treating the core as complete.
 
 Select the core with RetroArch's **Load Core → Install or Restore a Core**,
 then load the `.z64` ROM. Keep the core alongside your existing N64 core.
+For the automatic ROM core picker, copy `oot_piano_libretro.info` into
+RetroArch's **Core Info** directory (Settings → Directory → Core Info) while
+`oot_piano_libretro.dll` stays in RetroArch's **Cores** directory. Without the
+matching info file, select the piano core manually before loading the ROM.
