@@ -466,11 +466,7 @@ static void* EmuThreadFunction(void* param)
             uint32_t reg_id = 0;
             while (reg_id == 0)
             {
-#ifdef __MINGW32__
-                rand_s(&reg_id);
-#else
                 reg_id = rand();
-#endif
             }
             reg_id += netplay_player;
 
