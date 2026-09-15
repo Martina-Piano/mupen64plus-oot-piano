@@ -22,6 +22,15 @@ jobs:
 
       - name: Build v0.31 SmoothLoop wrapper DLL
         run: |
+          # v0.31 includes v0.3 as its base. Rename the three public v0.3
+          # exports in the checked-out build copy so v0.31 can provide its
+          # own audio callbacks and version string without symbol clashes.
+          sed -i \
+            -e 's/^RETRO_API void retro_set_audio_sample(/RETRO_API void retro_set_audio_sample_v03_raw(/' \
+            -e 's/^RETRO_API void retro_set_audio_sample_batch(/RETRO_API void retro_set_audio_sample_batch_v03_raw(/' \
+            -e 's/^RETRO_API void retro_get_system_info(/RETRO_API void retro_get_system_info_v03_raw(/' \
+            custom/piano_dynamic/oot_piano_dynamic_wrapper_v03.c
+
           x86_64-w64-mingw32-gcc \
             -std=c11 -O2 -Wall -Wextra \
             -shared -static-libgcc \
