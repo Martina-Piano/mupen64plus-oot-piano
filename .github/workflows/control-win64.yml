@@ -1,0 +1,40 @@
+name: Build Windows x64 control core
+
+on:
+  push:
+    branches: [control-core]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install MinGW-w64 and NASM
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-mingw-w64-x86-64-posix g++-mingw-w64-x86-64-posix nasm make
+
+      - name: Build untouched Mupen64Plus-Next core
+        env:
+          MSYSTEM: MINGW64
+        run: |
+          make -j2 platform=win \
+            CC=x86_64-w64-mingw32-gcc-posix \
+            CXX=x86_64-w64-mingw32-g++-posix \
+            CC_AS=x86_64-w64-mingw32-gcc-posix \
+            STRINGS=x86_64-w64-mingw32-strings \
+            ARCH=x86_64
+          x86_64-w64-mingw32-objdump -p mupen64plus_next_libretro.dll | sed -n '/DLL Name:/p'
+          file mupen64plus_next_libretro.dll
+          sha256sum mupen64plus_next_libretro.dll > SHA256.txt
+
+      - name: Upload control core
+        uses: actions/upload-artifact@v4
+        with:
+          name: mupen64plus-next-control-win64
+          path: |
+            mupen64plus_next_libretro.dll
+            SHA256.txt
