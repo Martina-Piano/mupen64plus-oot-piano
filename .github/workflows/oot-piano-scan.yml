@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   scan:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -18,21 +18,17 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           name: oot-piano-retroarch-windows-x64
           path: downloaded-core
-      - name: Check DLL and scan with Microsoft Defender
-        shell: pwsh
+      - name: Check the original DLL and scan with ClamAV
+        shell: bash
         run: |
-          $dll = Join-Path $PWD 'downloaded-core/oot_piano_libretro.dll'
-          if (-not (Test-Path $dll)) { throw 'Core DLL missing from artifact' }
-          $hash = (Get-FileHash $dll -Algorithm SHA256).Hash
-          Write-Output "DLL SHA256: $hash"
-          $status = Get-MpComputerStatus -ErrorAction Stop
-          if (-not $status.AntivirusEnabled -or -not $status.RealTimeProtectionEnabled) {
-            throw 'Microsoft Defender is not enabled on the build runner'
-          }
-          Write-Output "Defender signature version: $($status.AntivirusSignatureVersion)"
-          Start-MpScan -ScanType CustomScan -ScanPath $dll -ErrorAction Stop
-          if (-not (Test-Path $dll)) { throw 'Defender removed the DLL during the scan' }
-          $detections = @(Get-MpThreatDetection -ErrorAction Stop)
-          $pathMatches = @($detections | Where-Object { $_.Resources -match 'oot_piano_libretro.dll' })
-          if ($pathMatches.Count -gt 0) { throw 'Defender reported a detection for the DLL' }
-          Write-Output 'Defender scan completed without a detection for this DLL'
+          set -euo pipefail
+          dll=downloaded-core/oot_piano_libretro.dll
+          test -f "$dll"
+          sha256sum "$dll"
+          echo '659a5f29ad4830ad64f4960e5e0be3395717920eaa4e4e4c559c0255c4c6f60f4  downloaded-core/oot_piano_libretro.dll' | sha256sum --check
+          sudo apt-get update -qq
+          sudo apt-get install -y clamav clamav-freshclam
+          sudo systemctl stop clamav-freshclam || true
+          sudo freshclam
+          clamscan --version
+          clamscan --infected "$dll"
