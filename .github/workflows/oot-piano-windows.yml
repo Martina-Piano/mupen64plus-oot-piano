@@ -1,0 +1,30 @@
+name: OoT Piano Windows core
+
+on:
+  push:
+    branches: [oot-piano-test]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            make nasm
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-libpng
+            mingw-w64-x86_64-zlib
+            mingw-w64-x86_64-freetype
+      - name: Build separate 64-bit RetroArch core
+        shell: msys2 {0}
+        run: make -j2 platform=win MSYSTEM=MINGW64 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oot-piano-retroarch-windows-x64
+          path: oot_piano_libretro.dll
+          if-no-files-found: error

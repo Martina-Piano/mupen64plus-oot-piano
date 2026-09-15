@@ -12,3 +12,7 @@ asm_defines_gas.h
 .vscode/ipch/*
 .vscode/c_cpp_properties.json
 linker.list
+# Personal test content (never publish ROMs or recordings)
+piano/
+*.z64
+*.flac

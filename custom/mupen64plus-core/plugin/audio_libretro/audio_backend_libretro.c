@@ -28,6 +28,7 @@
 #include "plugin/plugin.h"
 #include "device/rcp/ri/ri_controller.h"
 #include "device/rcp/vi/vi_controller.h"
+#include "oot_piano.h"
 
 #include <stdio.h>
 #include <stddef.h>
@@ -352,7 +353,9 @@ static void aiLenChanged(void* user_data, const void* buffer, size_t size)
       out = audio_out_buffer_s16;
       while (output_frames)
       {
-         size_t ret     = audio_batch_cb(out, output_frames);
+         size_t ret;
+         oot_piano_mix(out, output_frames);
+         ret = audio_batch_cb(out, output_frames);
          output_frames -= ret;
          out           += ret * 2;
       }
@@ -389,7 +392,9 @@ audio_batch:
 
    while (data.output_frames)
    {
-      size_t ret          = audio_batch_cb(out, data.output_frames);
+      size_t ret;
+      oot_piano_mix(out, data.output_frames);
+      ret = audio_batch_cb(out, data.output_frames);
       data.output_frames -= ret;
       out                += ret * 2;
    }
