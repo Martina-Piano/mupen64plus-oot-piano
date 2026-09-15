@@ -23,6 +23,32 @@ jobs:
       - name: Build separate 64-bit RetroArch core
         shell: msys2 {0}
         run: make -j2 platform=win MSYSTEM=MINGW64 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++
+      - name: Show native DLL dependencies
+        shell: msys2 {0}
+        run: x86_64-w64-mingw32-objdump -p oot_piano_libretro.dll | grep 'DLL Name:'
+      - name: Verify the core loads outside the build toolchain
+        shell: pwsh
+        run: |
+          $source = @'
+          using System;
+          using System.Runtime.InteropServices;
+          public static class PianoDllProbe {
+              [DllImport("kernel32", CharSet = CharSet.Unicode, SetLastError = true)]
+              public static extern IntPtr LoadLibrary(string path);
+              [DllImport("kernel32", SetLastError = true)]
+              public static extern bool FreeLibrary(IntPtr module);
+          }
+          '@
+          Add-Type -TypeDefinition $source
+          $dll = Join-Path $PWD 'oot_piano_libretro.dll'
+          $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot"
+          $module = [PianoDllProbe]::LoadLibrary($dll)
+          if ($module -eq [IntPtr]::Zero) {
+            $lastError = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+            throw "Standalone Windows cannot load the core DLL (Win32 error $lastError)"
+          }
+          [void][PianoDllProbe]::FreeLibrary($module)
+          Write-Output 'Standalone Windows loads the core DLL successfully'
       - uses: actions/upload-artifact@v4
         with:
           name: oot-piano-retroarch-windows-x64
