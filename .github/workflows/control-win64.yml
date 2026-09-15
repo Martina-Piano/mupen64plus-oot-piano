@@ -17,14 +17,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-mingw-w64-x86-64-posix g++-mingw-w64-x86-64-posix nasm make
 
-      - name: Build clean Mupen64Plus-Next core
+      - name: Build untouched Mupen64Plus-Next core
         env:
           MSYSTEM: MINGW64
         run: |
-          # The source code stays untouched. For Windows only, link winpthread
-          # statically so RetroArch does not need libwinpthread-1.dll beside the core.
-          sed -i 's/LDFLAGS    += -lpthread/LDFLAGS    += -Wl,-Bstatic -lwinpthread -Wl,-Bdynamic/' Makefile
-
           make -j2 platform=win \
             CC=x86_64-w64-mingw32-gcc-posix \
             CXX=x86_64-w64-mingw32-g++-posix \
@@ -32,21 +28,39 @@ jobs:
             STRINGS=x86_64-w64-mingw32-strings \
             ARCH=x86_64
 
-          echo 'PE architecture:'
-          file mupen64plus_next_libretro.dll
-          echo 'Runtime DLL dependencies:'
-          x86_64-w64-mingw32-objdump -p mupen64plus_next_libretro.dll | sed -n '/DLL Name:/p' | tee dependencies.txt
-          if grep -qi 'libwinpthread-1.dll' dependencies.txt; then
-            echo 'ERROR: libwinpthread is still dynamically linked.'
-            exit 1
-          fi
-          sha256sum mupen64plus_next_libretro.dll > SHA256.txt
+          RUNTIME="$(x86_64-w64-mingw32-gcc-posix -print-file-name=libwinpthread-1.dll)"
+          test -f "$RUNTIME"
+          cp "$RUNTIME" ./libwinpthread-1.dll
 
-      - name: Upload control core
+          echo 'Core architecture:'
+          file mupen64plus_next_libretro.dll
+          echo 'Runtime architecture:'
+          file libwinpthread-1.dll
+          echo 'Core runtime DLL dependencies:'
+          x86_64-w64-mingw32-objdump -p mupen64plus_next_libretro.dll | sed -n '/DLL Name:/p' | tee dependencies.txt
+          sha256sum mupen64plus_next_libretro.dll libwinpthread-1.dll > SHA256.txt
+
+          cat > README_TEST.txt <<'EOF'
+          CONTROL TEST - no piano code yet
+
+          1. Close RetroArch completely.
+          2. Back up any previous custom Mupen64Plus-Next DLL.
+          3. Copy mupen64plus_next_libretro.dll into RetroArch\\cores\\.
+          4. Copy libwinpthread-1.dll into the RetroArch main folder beside retroarch.exe.
+          5. Start RetroArch and choose Load Core -> Mupen64Plus-Next.
+          6. Confirm that RetroArch now shows the core as loaded / offers Start Core.
+          7. Only after that, start the existing silent Ocarina of Time ROM.
+
+          This build intentionally contains NO piano/WAV modifications. It is the clean control core.
+          EOF
+
+      - name: Upload control package
         uses: actions/upload-artifact@v4
         with:
-          name: mupen64plus-next-control-win64-static-pthread
+          name: mupen64plus-next-control-win64-with-runtime
           path: |
             mupen64plus_next_libretro.dll
-            SHA256.txt
+            libwinpthread-1.dll
             dependencies.txt
+            SHA256.txt
+            README_TEST.txt
