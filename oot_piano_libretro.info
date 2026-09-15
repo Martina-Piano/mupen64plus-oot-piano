@@ -1,0 +1,39 @@
+# Software Information
+display_name = "Nintendo - Nintendo 64 (OoT Piano Test)"
+authors = "Mupen64Plus Team|GLideN64 Contributors|OoT Piano Contributors"
+supported_extensions = "n64|v64|z64|bin|u1"
+corename = "OoT Piano (Mupen64Plus-Next)"
+license = "GPLv2"
+permissions = "dynarec_optional"
+display_version = "2.8-test"
+categories = "Emulator"
+
+# Hardware Information
+manufacturer = "Nintendo"
+systemname = "Nintendo 64"
+systemid = "nintendo_64"
+
+# Libretro Features
+supports_no_game = "false"
+database = "Nintendo - Nintendo 64"
+hw_render = "true"
+required_hw_api = "OpenGL Core >= 3.3 | OpenGL ES >= 2.0"
+savestate = "true"
+savestate_features = "serialized"
+cheats = "true"
+input_descriptors = "true"
+memory_descriptors = "true"
+libretro_saves = "true"
+core_options = "true"
+load_subsystem = "true"
+needs_fullpath = "false"
+disk_control = "false"
+is_experimental = "true"
+
+# Firmware / BIOS
+firmware_count = 1
+firmware0_desc = "Mupen64plus/IPL.n64 (64DD BIOS)"
+firmware0_path = "Mupen64plus/IPL.n64"
+firmware0_opt = "true"
+
+description = "OoT Piano two-track test for OoT USA 1.0: adds external House and Kokiri Forest piano PCM while retaining game SFX."

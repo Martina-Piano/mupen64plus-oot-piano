@@ -1,0 +1,34 @@
+name: Check OoT Piano core download
+
+on:
+  push:
+    branches: [oot-piano-test]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 34952077047
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: oot-piano-retroarch-windows-x64
+          path: downloaded-core
+      - name: Check the original DLL and scan with ClamAV
+        shell: bash
+        run: |
+          set -euo pipefail
+          dll=downloaded-core/oot_piano_libretro.dll
+          test -f "$dll"
+          sha256sum "$dll"
+          echo '659a5f29ad4830ad64f4960e5e0be3395717920eaae4e4c559c0255c4c6f60f4  downloaded-core/oot_piano_libretro.dll' | sha256sum --check
+          sudo apt-get update -qq
+          sudo apt-get install -y clamav clamav-freshclam
+          sudo systemctl stop clamav-freshclam || true
+          sudo freshclam
+          clamscan --version
+          clamscan --infected "$dll"

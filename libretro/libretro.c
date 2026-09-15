@@ -58,6 +58,7 @@
 #include "libretro_memory.h"
 
 #include "audio_plugin.h"
+#include "../custom/mupen64plus-core/plugin/audio_libretro/oot_piano.h"
 
 #ifndef PRESCALE_WIDTH
 #define PRESCALE_WIDTH  640
@@ -465,11 +466,7 @@ static void* EmuThreadFunction(void* param)
             uint32_t reg_id = 0;
             while (reg_id == 0)
             {
-#ifdef __MINGW32__
-                rand_s(&reg_id);
-#else
                 reg_id = rand();
-#endif
             }
             reg_id += netplay_player;
 
@@ -651,7 +648,7 @@ void retro_set_environment(retro_environment_t cb)
 
 void retro_get_system_info(struct retro_system_info *info)
 {
-    info->library_name = "Mupen64Plus-Next";
+    info->library_name = "OoT Piano (Mupen64Plus-Next)";
     info->library_version = "2.8" FLAVOUR_VERSION GIT_VERSION;
     info->valid_extensions = "n64|v64|z64|bin|u1";
     info->need_fullpath = false;
@@ -1983,6 +1980,7 @@ bool retro_load_game(const struct retro_game_info *game)
     game_data = malloc(game->size);
     memcpy(game_data, game->data, game->size);
     game_size = game->size;
+    oot_piano_open(game->path, game->data, game->size);
 
     if (!emu_step_load_data())
         return false;
@@ -2007,6 +2005,7 @@ bool retro_load_game(const struct retro_game_info *game)
 
 void retro_unload_game(void)
 {
+    oot_piano_close();
     if(current_rdp_type == RDP_PLUGIN_GLIDEN64 && EnableThreadedRenderer)
     {
        environ_clear_thread_waits_cb(1, NULL);

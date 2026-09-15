@@ -238,6 +238,7 @@ SOURCES_C += $(LIBRETRO_DIR)/libretro.c \
 	$(LIBRETRO_COMM_DIR)/audio/resampler/drivers/nearest_resampler.c \
 	$(LIBRETRO_COMM_DIR)/audio/resampler/audio_resampler.c \
 	$(AUDIO_LIBRETRO_DIR)/audio_backend_libretro.c \
+	$(AUDIO_LIBRETRO_DIR)/oot_piano.c \
 	$(LIBRETRO_COMM_DIR)/file/config_file.c \
 	$(LIBRETRO_COMM_DIR)/file/config_file_userdata.c \
 	$(LIBRETRO_COMM_DIR)/file/file_path.c \
