@@ -25,7 +25,7 @@ jobs:
           dll=downloaded-core/oot_piano_libretro.dll
           test -f "$dll"
           sha256sum "$dll"
-          echo '659a5f29ad4830ad64f4960e5e0be3395717920eaa4e4e4c559c0255c4c6f60f4  downloaded-core/oot_piano_libretro.dll' | sha256sum --check
+          echo '659a5f29ad4830ad64f4960e5e0be3395717920eaae4e4c559c0255c4c6f60f4  downloaded-core/oot_piano_libretro.dll' | sha256sum --check
           sudo apt-get update -qq
           sudo apt-get install -y clamav clamav-freshclam
           sudo systemctl stop clamav-freshclam || true
