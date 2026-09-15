@@ -20,22 +20,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64
 
-      - name: Build dynamic wrapper DLL
+      - name: Build v0.31 SmoothLoop wrapper DLL
         run: |
           x86_64-w64-mingw32-gcc \
             -std=c11 -O2 -Wall -Wextra \
             -shared -static-libgcc \
             -Ilibretro-common/include \
-            custom/piano_dynamic/oot_piano_dynamic_wrapper.c \
-            -o mupen64plus_oot_piano_dynamic_libretro.dll
+            custom/piano_dynamic/oot_piano_dynamic_wrapper_v031.c \
+            -o mupen64plus_oot_piano_dynamic_v031_libretro.dll
 
-          cp custom/piano_dynamic/mupen64plus_oot_piano_dynamic_libretro.info .
+          cp custom/piano_dynamic/mupen64plus_oot_piano_dynamic_v031_libretro.info .
 
           echo 'Architecture:'
-          file mupen64plus_oot_piano_dynamic_libretro.dll
+          file mupen64plus_oot_piano_dynamic_v031_libretro.dll
 
           echo 'Dependencies:'
-          x86_64-w64-mingw32-objdump -p mupen64plus_oot_piano_dynamic_libretro.dll \
+          x86_64-w64-mingw32-objdump -p mupen64plus_oot_piano_dynamic_v031_libretro.dll \
             | sed -n '/DLL Name:/p' | tee dependencies.txt
 
           echo 'Required libretro exports:'
@@ -47,18 +47,18 @@ jobs:
             retro_serialize_size retro_serialize retro_unserialize retro_cheat_reset \
             retro_cheat_set retro_load_game retro_load_game_special retro_unload_game \
             retro_get_region retro_get_memory_data retro_get_memory_size; do
-              x86_64-w64-mingw32-nm -g mupen64plus_oot_piano_dynamic_libretro.dll | grep -q " $sym$" \
+              x86_64-w64-mingw32-nm -g mupen64plus_oot_piano_dynamic_v031_libretro.dll | grep -q " $sym$" \
                 || { echo "Missing export: $sym"; exit 1; }
           done
 
-          sha256sum mupen64plus_oot_piano_dynamic_libretro.dll > SHA256.txt
+          sha256sum mupen64plus_oot_piano_dynamic_v031_libretro.dll > SHA256.txt
 
-      - name: Upload dynamic package
+      - name: Upload v0.31 package
         uses: actions/upload-artifact@v4
         with:
-          name: oot-piano-dynamic-win64
+          name: oot-piano-dynamic-v031-win64
           path: |
-            mupen64plus_oot_piano_dynamic_libretro.dll
-            mupen64plus_oot_piano_dynamic_libretro.info
+            mupen64plus_oot_piano_dynamic_v031_libretro.dll
+            mupen64plus_oot_piano_dynamic_v031_libretro.info
             dependencies.txt
             SHA256.txt
